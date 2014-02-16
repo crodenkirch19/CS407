@@ -1,6 +1,7 @@
 package com.example.bluetoothfinder;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -27,7 +28,9 @@ public class MainActivity extends Activity {
     	switch (v.getId()) {
     	
     	case R.id.button_search:
-    		Toast.makeText(this, "Search not yet implemented", Toast.LENGTH_SHORT).show();
+    		//Toast.makeText(this, "Search not yet implemented", Toast.LENGTH_SHORT).show();
+    		Intent i = new Intent(this, BluetoothSearchActivity.class);
+    		startActivity(i);
     		break;
     	case R.id.button_settings:
     		Toast.makeText(this, "Settings not yet implemented", Toast.LENGTH_SHORT).show();
