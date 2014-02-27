@@ -49,6 +49,36 @@ public class BluetoothSignalAdapter extends BaseAdapter {
 		}
 		return (mSignals.size() == 0);
 	}
+	
+	public boolean hasDeviceWithAddr(String addr) {
+		for (BluetoothSignal s : mSignals) {
+			if (s.getAddr().equals(addr))
+				return true;
+		}
+		return false;
+	}
+	
+	public void updateRssiForDevice(String addr, int rssi) {
+		for (BluetoothSignal s : mSignals) {
+			if (s.getAddr().equals(addr)) {
+				s.setRssi(rssi);
+				this.notifyDataSetChanged();
+			}
+		}
+	}
+	
+	public void updateTimestampForDevice(String addr, long time) {
+		for (BluetoothSignal s : mSignals) {
+			if (s.getAddr().equals(addr)) {
+				s.setTimestamp(time);
+				this.notifyDataSetChanged();
+			}
+		}
+	}
+	
+	public void clearData() {
+		mSignals.clear();
+	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -65,7 +95,8 @@ public class BluetoothSignalAdapter extends BaseAdapter {
 		BluetoothSignal cur = mSignals.get(position);
 		textView.setText("Name: " + cur.getName() + "\n" +
 		                 "Addr: " + cur.getAddr() + "\n" + 
-				         "RSSI: " + cur.getRSSI() + "dB");
+				         "RSSI: " + cur.getRssi() + "dB" + "\n" +
+		                 "Time: " + cur.getTimestamp());
 		
 		return textView;
 	}
