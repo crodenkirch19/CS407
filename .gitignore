@@ -29,6 +29,9 @@ proguard/
 *.iws
 .idea/
 
+# Don't need compiled Python files
+*.pyc
+
 # Eclipse-specific
 *.pydevproject
 .metadata
