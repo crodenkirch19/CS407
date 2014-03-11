@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Note: This is currently not being used for anything -->
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <!-- Scan interval display -->
+    <TextView 
+        android:id="@+id/scan_interval"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    
+    <!-- Horizontal divider -->
+    <View
+    	android:layout_width="fill_parent"
+    	android:layout_height="1dp"
+    	android:background="@android:color/darker_gray" />
+    
+    <!-- The list of nearby bluetooth devices -->
+    <ListView
+        android:id="@+id/list_bt_devices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+		
+    </ListView>
+
+</LinearLayout>
