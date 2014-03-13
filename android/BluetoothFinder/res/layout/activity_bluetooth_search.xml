@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- Note: This is currently not being used for anything -->
-<LinearLayout 
+<RelativeLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical" >
     
     <!-- Scan interval display -->
@@ -15,16 +15,28 @@
     
     <!-- Horizontal divider -->
     <View
+        android:id="@+id/horiz_divider"
     	android:layout_width="fill_parent"
     	android:layout_height="1dp"
+    	android:layout_below="@id/scan_interval"
     	android:background="@android:color/darker_gray" />
     
     <!-- The list of nearby bluetooth devices -->
     <ListView
         android:id="@+id/list_bt_devices"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content" 
+        android:layout_below="@id/horiz_divider">
 		
     </ListView>
+    
+    <!-- Send Data button -->
+    <Button
+        android:id="@+id/button_send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onButtonClick"
+        android:text="@string/send_data" 
+        android:layout_alignParentBottom="true" />
 
-</LinearLayout>
+</RelativeLayout>

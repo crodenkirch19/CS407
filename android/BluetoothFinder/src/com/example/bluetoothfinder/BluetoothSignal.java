@@ -15,24 +15,28 @@ public class BluetoothSignal {
 		this.timestamp = new Timestamp(time);
 	}
 	
-	String getName() {
+	public String getName() {
 		return name;
 	}
-	String getAddr() {
+	public String getAddr() {
 		return addr;
 	}
-	String getTimestamp() {
+	public String getTimestamp() {
 		return timestamp.toString();
 	}
-	int getRssi() {
+	public int getRssi() {
 		return rssi;
 	}
-	void setRssi(int newRssi) {
+	public void setRssi(int newRssi) {
 		rssi = newRssi;
 	}
-	void setTimestamp(long time) {
+	public void setTimestamp(long time) {
 		timestamp = new Timestamp(time);
 	}
 	
+	public String toJSON() {
+		// Convert this signal object to JSON
+		return null;
+	}
 	
 }

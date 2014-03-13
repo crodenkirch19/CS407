@@ -12,7 +12,7 @@ public class BluetoothSignalAdapter extends BaseAdapter {
 	
 	private Context mContext;
 	
-	ArrayList<BluetoothSignal> mSignals;
+	private ArrayList<BluetoothSignal> mSignals;
 	
 	
 	public BluetoothSignalAdapter(Context c) {

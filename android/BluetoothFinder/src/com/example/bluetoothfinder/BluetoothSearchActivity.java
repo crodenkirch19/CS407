@@ -11,24 +11,28 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class BluetoothSearchActivity extends Activity {
 
+	private static final int REQUEST_ENABLE_BT = 1;
+	private static final int SCAN_PERIOD = 1000; // Scan for 1 sec at a time
+	private static final int MAX_SCAN_INTERVAL = 300000; // 5 min
+	
+	
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothSignalAdapter mSignalAdapter;
+	private BluetoothScanCache mScanCache;
+	private BluetoothScan mCurrentScan;
 	private boolean mScanning;
 	private Date mDate;
 	private Handler mHandler;
 	private boolean mCanSeeBeacon;
 	private int mWaitPeriod = 5000; // Wait for 5 secs between scans by default
-	
-	private static final int REQUEST_ENABLE_BT = 1;
-	private static final int SCAN_PERIOD = 1000; // Scan for 1 sec at a time
-	private static final int MAX_SCAN_INTERVAL = 300000; // 5 min
-	
+
 	// Create a callback to be run each time a new BLE device is discovered
 	private BluetoothAdapter.LeScanCallback mLeScanCallback = 
 			new BluetoothAdapter.LeScanCallback() {
@@ -39,23 +43,26 @@ public class BluetoothSearchActivity extends Activity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
+					BluetoothSignal receivedSignal = new BluetoothSignal(
+							device.getName(), 
+							device.getAddress(), 
+							rssi,
+							new Date().getTime());
+					
 					if (!mSignalAdapter.hasDeviceWithAddr(device.getAddress())) {
 						// Signal to app that a beacon is nearby
 						mCanSeeBeacon = true;
 						
 						// Add the BLE signal to our list adapter
-						mSignalAdapter.addSignal(
-								new BluetoothSignal(device.getName(), 
-													device.getAddress(), 
-													rssi,
-													mDate.getTime()));
+						mSignalAdapter.addSignal(receivedSignal);
 					}
 					else {
 						// Update the stored signal with the given address
 						mSignalAdapter.updateRssiForDevice(device.getAddress(), rssi);
 						mSignalAdapter.updateTimestampForDevice(device.getAddress(), mDate.getTime());
 					}
-					// TODO: Add this signal to a list of signals found for this scan
+					// Add this signal to a list of signals found for this scan
+					mCurrentScan.addSignal(receivedSignal);
 				}
 			});
 		}
@@ -70,6 +77,7 @@ public class BluetoothSearchActivity extends Activity {
 		setContentView(R.layout.activity_bluetooth_search);
 		ListView listView = (ListView)findViewById(R.id.list_bt_devices);
 		listView.setAdapter(mSignalAdapter);
+		mScanCache = new BluetoothScanCache();
 		
 		mHandler = new Handler();
 		
@@ -110,7 +118,7 @@ public class BluetoothSearchActivity extends Activity {
 	}
 	
 	private void scanLeDevice(final boolean enable) {
-		if (enable) {
+		if (enable && !mScanning) {
 			// In SCAN_PERIOD ms, stop the scan
 			mHandler.postDelayed(new Runnable() {
 				@Override
@@ -118,6 +126,8 @@ public class BluetoothSearchActivity extends Activity {
 					mScanning = false;
 					mBluetoothAdapter.stopLeScan(mLeScanCallback);
 					
+					// After each scan add the scan data to the cache
+					mScanCache.addScan(mCurrentScan);
 					
 					if (mCanSeeBeacon) {
 						// If a beacon was found, reset the wait period to 5s
@@ -130,8 +140,6 @@ public class BluetoothSearchActivity extends Activity {
 					
 					TextView scanIntervalView = (TextView)findViewById(R.id.scan_interval);
 					scanIntervalView.setText("Scan interval: " + (mWaitPeriod / 1000.0) + " sec");
-					
-					// TODO: After each scan, cache scan results to be sent to server
 					
 					mHandler.postDelayed(new Runnable() {
 						@Override
@@ -147,12 +155,14 @@ public class BluetoothSearchActivity extends Activity {
 			mCanSeeBeacon = false;
 			mScanning = true;
 			mDate = new Date();
+			mCurrentScan = new BluetoothScan();
 			mBluetoothAdapter.startLeScan(mLeScanCallback);
 		}
 		else {
 			// If enable is false, stop the scan.
 			mScanning = false;
 			mBluetoothAdapter.stopLeScan(mLeScanCallback);
+			mScanCache.addScan(mCurrentScan);
 		}
 	}
 	
@@ -173,4 +183,15 @@ public class BluetoothSearchActivity extends Activity {
 		}
 	}
 
+	public void onButtonClick(View v) {
+		
+		switch (v.getId()) {
+		
+		case R.id.button_send:
+			String scanJson = mScanCache.toJSON();
+			Toast.makeText(this, "Send JSON placeholder", Toast.LENGTH_SHORT).show();
+			// TODO: Send JSON to server
+			break;
+		}
+	}
 }
