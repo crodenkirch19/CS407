@@ -1,5 +1,6 @@
 package com.example.bluetoothfinder;
 
+import org.json.*;
 import java.util.ArrayList;
 
 public class BluetoothScan {
@@ -14,9 +15,13 @@ public class BluetoothScan {
 		mSignals.add(signal);
 	}
 	
-	public String toJSON() {
+	public JSONArray toJSON() throws JSONException {
 		// Convert this scan to JSON
-		return null;
+		JSONArray json = new JSONArray();
+		for (BluetoothSignal signal : mSignals) {
+			json.put(signal.toJSON());
+		}
+		return json;
 	}
 	
 	public int size() {

@@ -1,6 +1,7 @@
 package com.example.bluetoothfinder;
 
 import java.sql.Timestamp;
+import org.json.*;
 
 public class BluetoothSignal {
 	private String name;
@@ -34,9 +35,12 @@ public class BluetoothSignal {
 		timestamp = new Timestamp(time);
 	}
 	
-	public String toJSON() {
-		// Convert this signal object to JSON
-		return null;
+	public JSONObject toJSON() throws JSONException {
+		JSONObject json = new JSONObject();
+		json.put("addr", addr);
+		json.put("dist", rssi);
+		json.put("time", timestamp.getTime());
+		return json;
 	}
 	
 }

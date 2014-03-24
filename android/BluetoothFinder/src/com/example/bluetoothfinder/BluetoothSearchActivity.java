@@ -2,6 +2,9 @@ package com.example.bluetoothfinder;
 
 import java.util.Date;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,6 +14,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,8 +25,8 @@ public class BluetoothSearchActivity extends Activity {
 	private static final int REQUEST_ENABLE_BT = 1;
 	private static final int SCAN_PERIOD = 1000; // Scan for 1 sec at a time
 	private static final int MAX_SCAN_INTERVAL = 300000; // 5 min
-	
-	
+
+
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothSignalAdapter mSignalAdapter;
 	private BluetoothScanCache mScanCache;
@@ -36,10 +40,10 @@ public class BluetoothSearchActivity extends Activity {
 	// Create a callback to be run each time a new BLE device is discovered
 	private BluetoothAdapter.LeScanCallback mLeScanCallback = 
 			new BluetoothAdapter.LeScanCallback() {
-		
+
 		@Override
 		public void onLeScan(final BluetoothDevice device, final int rssi, 
-							 byte[] scanRecord) {
+				byte[] scanRecord) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -48,11 +52,11 @@ public class BluetoothSearchActivity extends Activity {
 							device.getAddress(), 
 							rssi,
 							new Date().getTime());
-					
+
 					if (!mSignalAdapter.hasDeviceWithAddr(device.getAddress())) {
 						// Signal to app that a beacon is nearby
 						mCanSeeBeacon = true;
-						
+
 						// Add the BLE signal to our list adapter
 						mSignalAdapter.addSignal(receivedSignal);
 					}
@@ -67,48 +71,48 @@ public class BluetoothSearchActivity extends Activity {
 			});
 		}
 	};
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		// Initialize our signal adapter and hook it up to this activity
 		mSignalAdapter = new BluetoothSignalAdapter(this);
 		setContentView(R.layout.activity_bluetooth_search);
 		ListView listView = (ListView)findViewById(R.id.list_bt_devices);
 		listView.setAdapter(mSignalAdapter);
 		mScanCache = new BluetoothScanCache();
-		
+
 		mHandler = new Handler();
-		
+
 		// Use this check to determine whether BLE is supported on the device. Then
 		// you can selectively disable BLE-related features.
 		if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-		    Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-		    finish();
+			Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+			finish();
 		}
-		
+
 		BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
-		
+
 		// Set up our bluetooth adapter for scanning
 		mBluetoothAdapter = bluetoothManager.getAdapter();
-		
+
 		if (mBluetoothAdapter == null) {
-		    // Device does not support bluetooth
+			// Device does not support bluetooth
 			Toast.makeText(this, R.string.bt_not_supported, Toast.LENGTH_SHORT).show();
 			finish();
 		}
 		else if (!mBluetoothAdapter.isEnabled()) { 
 			// Adapter exists, but is disabled
-		    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);	
-		    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+			Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);	
+			startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 		}
 		else { 
 			// Adapter exists and is enabled already
 			scanLeDevice(true);
 		}
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		// Stop scan if it is running
@@ -116,7 +120,7 @@ public class BluetoothSearchActivity extends Activity {
 
 		super.onDestroy();
 	}
-	
+
 	private void scanLeDevice(final boolean enable) {
 		if (enable && !mScanning) {
 			// In SCAN_PERIOD ms, stop the scan
@@ -125,10 +129,10 @@ public class BluetoothSearchActivity extends Activity {
 				public void run() {
 					mScanning = false;
 					mBluetoothAdapter.stopLeScan(mLeScanCallback);
-					
+
 					// After each scan add the scan data to the cache
 					mScanCache.addScan(mCurrentScan);
-					
+
 					if (mCanSeeBeacon) {
 						// If a beacon was found, reset the wait period to 5s
 						mWaitPeriod = 5000;
@@ -137,10 +141,10 @@ public class BluetoothSearchActivity extends Activity {
 						// Otherwise, back off the scanning interval (up to 5 min)
 						mWaitPeriod = Math.min(mWaitPeriod * 2, MAX_SCAN_INTERVAL);
 					}
-					
+
 					TextView scanIntervalView = (TextView)findViewById(R.id.scan_interval);
 					scanIntervalView.setText("Scan interval: " + (mWaitPeriod / 1000.0) + " sec");
-					
+
 					mHandler.postDelayed(new Runnable() {
 						@Override
 						public void run() {
@@ -150,7 +154,7 @@ public class BluetoothSearchActivity extends Activity {
 					}, mWaitPeriod);
 				}
 			}, SCAN_PERIOD);
-			
+
 			// Start scanning
 			mCanSeeBeacon = false;
 			mScanning = true;
@@ -165,11 +169,11 @@ public class BluetoothSearchActivity extends Activity {
 			mScanCache.addScan(mCurrentScan);
 		}
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		
+
 		switch (requestCode) {
 		case REQUEST_ENABLE_BT:
 			if (resultCode == RESULT_OK) {
@@ -184,11 +188,20 @@ public class BluetoothSearchActivity extends Activity {
 	}
 
 	public void onButtonClick(View v) {
-		
+
 		switch (v.getId()) {
-		
+
 		case R.id.button_send:
-			String scanJson = mScanCache.toJSON();
+			// Right now, converts the cached scans into JSON and then prints the JSON
+			// out the the debug console with tag "JSON". Now that we have the JSON, 
+			// it should be pretty easy to send the data to the server.
+			JSONObject scanJson = mScanCache.toJSON();
+			try {
+				Log.d("JSON", scanJson.toString(2));
+			} catch (JSONException e) {
+				Log.e("JSON", e.getMessage());
+				System.exit(1);
+			}
 			Toast.makeText(this, "Send JSON placeholder", Toast.LENGTH_SHORT).show();
 			// TODO: Send JSON to server
 			break;
