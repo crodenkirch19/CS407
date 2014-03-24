@@ -10,5 +10,9 @@
     <string name="bluetooth_search_title">Nearby BLE Devices</string>
     <string name="ble_not_supported">This device does not support BLE</string>
     <string name="bt_not_supported">This device does not support Bluetooth</string>
+<<<<<<< HEAD
+=======
+    <string name="send_data">Send scan data</string>
+>>>>>>> 92575cfaca95af6a75fd43b2198411188798f593
 
 </resources>

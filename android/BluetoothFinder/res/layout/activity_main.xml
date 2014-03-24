@@ -17,6 +17,11 @@
         android:text="@string/app_title"
         android:textSize="20sp"
         android:textStyle="bold" />
+<<<<<<< HEAD
+=======
+  	
+
+>>>>>>> 92575cfaca95af6a75fd43b2198411188798f593
 
   	<!-- Bluetooth search button -->
     <Button
@@ -37,6 +42,18 @@
 		android:layout_below="@id/button_search"
         android:onClick="onButtonClick"
         android:text="@string/button_settings" />
+<<<<<<< HEAD
 
+=======
+    
+  	<!-- google sign in button -->
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/sign_in_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_search"
+        android:layout_centerHorizontal="true" >
+    </com.google.android.gms.common.SignInButton>
+>>>>>>> 92575cfaca95af6a75fd43b2198411188798f593
 
 </RelativeLayout>

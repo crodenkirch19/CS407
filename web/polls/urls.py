@@ -3,6 +3,7 @@ from django.conf.urls import patterns, url
 from polls import views
 
 urlpatterns = patterns('',
+<<<<<<< HEAD
     # ex: /polls/
     url(r'^$', views.index, name='index'),
     # ex: /polls/5/
@@ -11,4 +12,7 @@ urlpatterns = patterns('',
     url(r'^(?P<poll_id>\d+)/results/$', views.results, name='results'),
     # ex: /polls/5/vote/
     url(r'^(?P<poll_id>\d+)/vote/$', views.vote, name='vote'),
+=======
+    url(r'^$', views.index, name='index')
+>>>>>>> 92575cfaca95af6a75fd43b2198411188798f593
 )
