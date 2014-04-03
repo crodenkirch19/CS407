@@ -4,5 +4,6 @@ from beacon_app import views
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^$', views.index, name='index'),
+    url(r'^$', views.index),
+    url(r'^logs/$', views.logs),
 )
