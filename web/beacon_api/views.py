@@ -34,6 +34,7 @@ def send_scans(request):
     # TODO
 
     # So we know we have a valid scan. Save it to the database.
+    
 
     response = ''
     return HttpResponse(response)

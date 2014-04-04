@@ -39,7 +39,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'beacon_app',
-    'beacon_api'
+    'beacon_api',
+    'south'
 )
 
 MIDDLEWARE_CLASSES = (
