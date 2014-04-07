@@ -4,11 +4,15 @@ from django.template import RequestContext, loader, Context, Template
 from django.http import HttpResponse
 from beacon_api.models import Scan, Log, Beacon
 from datetime import datetime
+from django.views.decorators.csrf import csrf_exempt
+import dateutil.parser
+import simplejson
 
 import json
 
 import datetime
 
+@csrf_exempt
 def index(request):
     api_version = 1.0
     methods_defined = ['send_scans']
@@ -18,37 +22,47 @@ def index(request):
     })
     return HttpResponse(response)
 
+@csrf_exempt
 def not_found(request):
     return error_response(404, 'no method found with this name')
 
+@csrf_exempt
 def send_scans(request):
     # First extract data from the POST data
     if request.method != "POST" :
         return error_response(404, 'no method found with this name and method')
-    params = request.POST
+
+    params = simplejson.loads(request.body)
+    error = str(request.body)
+
     try:
-        token = params.token
-        scans = params.scans
+        token = params["token"]
+        scans = params["scans"]
     except AttributeError:
-        return error_response(400, 'missing attributes on input data')
+        return error_response(400, 'missing attributes on input data %s' % error )
 
     # Now we query the Google API and get a user id from this token
+    # We'll use this token to 
     # TODO
+
+    # TODO cross-reference a single beacon to find what store it corresponds to
+    # We'll also use the userdata to make this log
+
 
     # So we know we have a valid scan. Save it to the database.
     for scan_group in scans:
         for scan in scan_group:
             log = Log.objects.all()[0] # TODO make new log for each scan
-            time = datetime.now() # TODO parse from time data
-            distance = scan.dist
+            try:
+                time = dateutil.parser.parse(scan["time"])
+                distance = scan["dist"]
+            except AttributeError:
+                return error_response(400, 'missing attributes on input data')
 
-            # Make a beacon for this scan if one doesn't exist
-            matching_beacons = Beacon.objects.filter(mac_address=scan.addr)
+            # If this beacon doesn't exist throw an error
+            matching_beacons = Beacon.objects.filter(mac_address=scan["addr"])
             if len(matching_beacons) == 0:
-                b = Beacon(mac_address=scan.addr, store=Floorplan.objects.all()[0])
-                location_x = 10
-                location_y = 10
-                b.save()
+                return error_response(400, 'no beacon with the specified address was found')
             else:
                 b = matching_beacons[0]
 
@@ -57,9 +71,11 @@ def send_scans(request):
             scan.save()
     
 
-    response = ''
+
+    response = r'{ "response":"success!" }'
     return HttpResponse(response)
 
+@csrf_exempt
 def error_response(error_id, error_message):
     response = json.dumps({
         'error_id':error_id,

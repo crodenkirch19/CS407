@@ -5,6 +5,6 @@ from beacon_api import views
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', views.index, name='index'),
-    url(r'^send_scans$', views.send_scans, name='index'),
-    url(r'.*', views.not_found)
+    url(r'send_scans/$', views.send_scans),
+    # url(r'.*', views.not_found)
 )

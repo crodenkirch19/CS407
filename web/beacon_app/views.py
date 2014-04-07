@@ -24,8 +24,8 @@ def logs(request):
 
     name = request.user.get_username()
     logs = Scan.objects.all()
-    outstring = "["
+    outstring = "<p>["
     for log in logs:
-        outstring = "%s\n{ 'log':%s, 'distance':%s, 'beacon':%s, time:%s }" % (outstring, log.log, log.distance, log.beacon, log.time)
-    outstring = "%s \n ]" % outstring
+        outstring = "%s<br>    { 'log':%s, 'distance':%s, 'beacon':%s, time:%s }" % (outstring, log.log, log.distance, log.beacon, log.time)
+    outstring = "%s <br>]</p>" % outstring
     return HttpResponse(outstring)
