@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.shortcuts import render
 from django.template import RequestContext, loader, Context, Template
 from django.http import HttpResponse
+from beacon_api.models import Scan, Log, Beacon
+from datetime import datetime
 
 import json
 
@@ -34,6 +36,25 @@ def send_scans(request):
     # TODO
 
     # So we know we have a valid scan. Save it to the database.
+    for scan_group in scans:
+        for scan in scan_group:
+            log = Log.objects.all()[0] # TODO make new log for each scan
+            time = datetime.now() # TODO parse from time data
+            distance = scan.dist
+
+            # Make a beacon for this scan if one doesn't exist
+            matching_beacons = Beacon.objects.filter(mac_address=scan.addr)
+            if len(matching_beacons) == 0:
+                b = Beacon(mac_address=scan.addr, store=Floorplan.objects.all()[0])
+                location_x = 10
+                location_y = 10
+                b.save()
+            else:
+                b = matching_beacons[0]
+
+
+            scan = Scan(log=log, beacon=b, distance=distance, time=time)
+            scan.save()
     
 
     response = ''

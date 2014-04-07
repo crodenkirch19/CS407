@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.template import RequestContext, loader, Context, Template
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
+from beacon_api.models import Scan
 
 def index(request):
     # Respond to user login event
@@ -15,12 +16,16 @@ def index(request):
                 return redirect("/logs/")
     return render(request,"index.html",{})
 
-    # template = loader.get_template('index.html')
-    # return HttpResponse(template.render(Context()))
-
 def logs(request):
     if request.user.is_authenticated():
-        name = request.user.get_username()
-        return HttpResponse("Hey great job %s you're authenticated! <br> Here are your logs man. You deserve them!" % name)
+        pass
     else:
-        return HttpResponse("Yo I'd authenticate first if I were you")
+        pass
+
+    name = request.user.get_username()
+    logs = Scan.objects.all()
+    outstring = "["
+    for log in logs:
+        outstring = "%s\n{ 'log':%s, 'distance':%s, 'beacon':%s, time:%s }" % (outstring, log.log, log.distance, log.beacon, log.time)
+    outstring = "%s \n ]" % outstring
+    return HttpResponse(outstring)

@@ -19,3 +19,5 @@ for x in `heroku config | tail -n +2`; do
     value=""
   fi
 done
+
+cd web
