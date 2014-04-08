@@ -5,6 +5,10 @@ from django.contrib.auth import authenticate, login, logout
 from beacon_api.models import Scan
 
 def index(request):
+    """
+    Main page clients look at when loading
+    beacon-adventure.herokuapp.com
+    """
     # Respond to user login event
     if request.POST:
         username = request.POST.get('username')
@@ -14,15 +18,19 @@ def index(request):
             if user.is_active:
                 login(request, user)
                 return redirect("/logs/")
-    return render(request,"index.html",{})
+    return render(request, "index.html", {})
 
 def logs(request):
+    """
+    beacon-adventure.herokuapp.com/logs/
+    Loads the scan logs from the database
+    and displays them in a user-friendly format
+    """
     if request.user.is_authenticated():
         pass
     else:
         pass
 
-    name = request.user.get_username()
     logs = Scan.objects.all()
     outstring = "<p>["
     for log in logs:

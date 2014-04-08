@@ -14,6 +14,10 @@ import datetime
 
 @csrf_exempt
 def index(request):
+    """
+    List all function in the API
+    Called at becaon-adventure.herokuapp.com/api/
+    """
     api_version = 1.0
     methods_defined = ['send_scans']
     response = json.dumps({
@@ -24,6 +28,9 @@ def index(request):
 
 @csrf_exempt
 def not_found(request):
+    """
+
+    """
     return error_response(404, 'no method found with this name')
 
 @csrf_exempt
@@ -42,7 +49,7 @@ def send_scans(request):
         return error_response(400, 'missing attributes on input data %s' % error )
 
     # Now we query the Google API and get a user id from this token
-    # We'll use this token to 
+    # We'll use this token to name a userdata
     # TODO
 
     # TODO cross-reference a single beacon to find what store it corresponds to
