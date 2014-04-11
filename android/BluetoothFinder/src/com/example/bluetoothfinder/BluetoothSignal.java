@@ -1,10 +1,7 @@
 package com.example.bluetoothfinder;
 
 import java.sql.Timestamp;
-<<<<<<< HEAD
-=======
 import org.json.*;
->>>>>>> 92575cfaca95af6a75fd43b2198411188798f593
 
 public class BluetoothSignal {
 	private String name;
@@ -19,27 +16,6 @@ public class BluetoothSignal {
 		this.timestamp = new Timestamp(time);
 	}
 	
-<<<<<<< HEAD
-	String getName() {
-		return name;
-	}
-	String getAddr() {
-		return addr;
-	}
-	String getTimestamp() {
-		return timestamp.toString();
-	}
-	int getRssi() {
-		return rssi;
-	}
-	void setRssi(int newRssi) {
-		rssi = newRssi;
-	}
-	void setTimestamp(long time) {
-		timestamp = new Timestamp(time);
-	}
-	
-=======
 	public String getName() {
 		return name;
 	}
@@ -60,12 +36,12 @@ public class BluetoothSignal {
 	}
 	
 	public JSONObject toJSON() throws JSONException {
+		String timeStr = timestamp.toString().replace(' ', 'T');
 		JSONObject json = new JSONObject();
 		json.put("addr", addr);
 		json.put("dist", rssi);
-		json.put("time", timestamp.getTime());
+		json.put("time", timeStr);
 		return json;
 	}
->>>>>>> 92575cfaca95af6a75fd43b2198411188798f593
 	
 }
