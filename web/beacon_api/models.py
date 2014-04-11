@@ -3,6 +3,7 @@ from django.contrib import auth
 
 # A single floorplan representing a store
 class Floorplan(models.Model):
+    name = models.CharField(max_length=40)
     blueprint = models.ImageField(upload_to="blueprints")
     # Ratio of PIXELS to FEET
     scale = models.FloatField()
