@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.template import RequestContext, loader, Context, Template
 from django.http import HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
-from beacon_api.models import Scan, Floorplan
+from beacon_api.models import Scan, Floorplan, Beacon
 from django.contrib.auth.decorators import login_required
 
 
@@ -56,6 +56,7 @@ def stores_index(request):
 @login_required
 def store_detail(request, store_number):
     store = get_object_or_404(Floorplan, pk=store_number)
+    beacon_list = Beacon.objects.filter(store=store)
     if store.owner != request.user:
         raise Http404
-    return render(request, "store_detail.html", {"store":store})
+    return render(request, "store_detail.html", {"store":store, "beacon_list":beacon_list})

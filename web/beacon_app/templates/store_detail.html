@@ -3,6 +3,14 @@
 {% block title %}Store detail: {{ store.name }}{% endblock %}
 
 {% block content %}
+    <img src="{{ store.blueprint_url }}" width="480" height="320" alt="blueprint for this storeplan">
+{% endblock %}
 
-
+{% block javascript %}
+<script type="text/javascript"> 
+   var beacons = [{% for beacon in beacon_list %} 
+   { "address":"{{ beacon.mac_address }}", "x":{{ beacon.location_x }}, "y":{{ beacon.location_y }} }, {% endfor %}];
+</script>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="/static/js/store_detail.js"></script>
 {% endblock %}
