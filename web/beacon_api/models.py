@@ -9,6 +9,9 @@ class Floorplan(models.Model):
     scale = models.FloatField()
     owner = models.ForeignKey(auth.models.User)
 
+    def blueprint_url(self):
+        return "/" + "/".join(self.blueprint.url.split('/')[1:])
+
 # Single MobileUser of our mobile app.
 # We only need to store their Google+ MobileUserId.
 class MobileUser(models.Model):
