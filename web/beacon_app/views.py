@@ -49,7 +49,9 @@ def logs(request):
 
 @login_required
 def stores_index(request):
-    return render(request, "store_index.html", {})
+    stores = Floorplan.objects.filter(owner=request.user)
+
+    return render(request, "store_index.html", { "store_list":stores })
 
 @login_required
 def store_detail(request, store_number):
