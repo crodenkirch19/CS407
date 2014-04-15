@@ -11,6 +11,7 @@ def index(request):
     Main page clients look at when loading
     beacon-adventure.herokuapp.com
     """
+
     # Respond to user login or logout event
     if request.POST:
         action = request.POST.get('action')

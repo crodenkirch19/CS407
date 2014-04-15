@@ -33,6 +33,19 @@ class Log(models.Model):
     store = models.ForeignKey(Floorplan)
     MobileUser = models.ForeignKey(MobileUser)
 
+    def calc_user_path(self):
+        """
+        Calculates a nx3 array of the user's path during this scan
+        First column is x location, measured in FEET
+        Second column is y location
+        Third column is time, a datetime object.
+        """
+        # Get an array of Scan objects corresponding to this log
+        # Each of these gives the distance to a given beacon at a given time
+        scans = Scan.objects.filter(log=self)
+
+        # Triangulate (estimate) the user's position given this information
+
 # Represents a single scan instance on a single Beacon
 class Scan(models.Model):
     log = models.ForeignKey(Log)

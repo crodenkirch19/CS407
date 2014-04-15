@@ -42,13 +42,6 @@ svg.append("rect")
     .attr("width", width)
     .attr("height", height);
 
-svg.append("image")
-    .attr("x","0")
-    .attr("y","0")
-    .attr("width",width)
-    .attr("height",height)
-    .attr("xlink:href",store.image_url)
-
 svg.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
@@ -58,11 +51,21 @@ svg.append("g")
     .attr("class", "y axis")
     .call(yAxis);
 
+var content = svg.append("g");
+
+content.append("image")
+    .attr("x","0")
+    .attr("y","0")
+    .attr("width",width)
+    .attr("height",height)
+    .attr("xlink:href",store.image_url)
+
 function zoomed() {
   svg.select(".x.axis").call(xAxis);
   svg.select(".y.axis").call(yAxis);
   var translate = zoom.translate();
-  svg.select("image").attr("transform", 
-    "translate(" + (margin.left+translate[0]) + "," + (margin.top+translate[1]) + "), " +
+  content.attr("transform", 
+    "translate(" + (translate[0]) + "," + (translate[1]) + "), " +
     "scale(" + zoom.scale() + ")");
 }
+
