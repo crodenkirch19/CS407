@@ -5,49 +5,74 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class BluetoothSearchActivity extends Activity {
 
 	private static final int REQUEST_ENABLE_BT = 1;
-	private static final int SCAN_PERIOD = 1000; // Scan for 1 sec at a time
-	private static final int MAX_SCAN_INTERVAL = 300000; // 5 min
+	//private static final int SCAN_PERIOD = 1000; // Scan for 1 sec at a time
+	//private static final int MAX_SCAN_INTERVAL = 300000; // 5 min
 
 
+	private BluetoothSearchService mBoundService;
+	private boolean mIsBound;
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothSignalAdapter mSignalAdapter;
-	private BluetoothScanCache mScanCache;
-	private BluetoothScan mCurrentScan;
-	private boolean mScanning;
-	private Date mDate;
-	private Handler mHandler;
-	private boolean mCanSeeBeacon;
-	private int mWaitPeriod = 5000; // Wait for 5 secs between scans by default
+	//private BluetoothScanCache mScanCache;
+	//private BluetoothScan mCurrentScan;
+	//private boolean mScanning;
+	//private Date mDate;
+	//private Handler mHandler;
+	//private boolean mCanSeeBeacon;
+	//private int mWaitPeriod = 5000; // Wait for 5 secs between scans by default
+	
+	private ServiceConnection mConnection = new ServiceConnection() {
+	    public void onServiceConnected(ComponentName className, IBinder service) {
+	        // This is called when the connection with the service has been
+	        // established, giving us the service object we can use to
+	        // interact with the service.  Because we have bound to a explicit
+	        // service that we know is running in our own process, we can
+	        // cast its IBinder to a concrete class and directly access it.
+	        mBoundService = ((BluetoothSearchService.BluetoothSearchBinder)service).getService();
+	        
+	        Toast.makeText(BluetoothSearchActivity.this, "Connected to the service", Toast.LENGTH_SHORT)
+				.show();
+	    }
 
+	    public void onServiceDisconnected(ComponentName className) {
+	        // This is called when the connection with the service has been
+	        // unexpectedly disconnected -- that is, its process crashed.
+	        // Because it is running in our same process, we should never
+	        // see this happen.
+	        mBoundService = null;
+	        Toast.makeText(BluetoothSearchActivity.this, "Disconnected from the service", Toast.LENGTH_SHORT)
+				.show();
+	    }
+	};
+
+
+	/*
 	// Create a callback to be run each time a new BLE device is discovered
 	private BluetoothAdapter.LeScanCallback mLeScanCallback = 
 			new BluetoothAdapter.LeScanCallback() {
@@ -58,30 +83,33 @@ public class BluetoothSearchActivity extends Activity {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					BluetoothSignal receivedSignal = new BluetoothSignal(
-							device.getName(), 
-							device.getAddress(), 
-							rssi,
-							new Date().getTime());
+					if (device.getName() != null) {
+						BluetoothSignal receivedSignal = new BluetoothSignal(
+								device.getName(), 
+								device.getAddress(), 
+								rssi,
+								new Date().getTime());
 
-					if (!mSignalAdapter.hasDeviceWithAddr(device.getAddress())) {
-						// Signal to app that a beacon is nearby
-						mCanSeeBeacon = true;
+						if (!mSignalAdapter.hasDeviceWithAddr(device.getAddress())) {
+							// Signal to app that a beacon is nearby
+							mCanSeeBeacon = true;
 
-						// Add the BLE signal to our list adapter
-						mSignalAdapter.addSignal(receivedSignal);
+							// Add the BLE signal to our list adapter
+							mSignalAdapter.addSignal(receivedSignal);
+						}
+						else {
+							// Update the stored signal with the given address
+							mSignalAdapter.updateRssiForDevice(device.getAddress(), rssi);
+							mSignalAdapter.updateTimestampForDevice(device.getAddress(), mDate.getTime());
+						}
+						// Add this signal to a list of signals found for this scan
+						mCurrentScan.addSignal(receivedSignal);
 					}
-					else {
-						// Update the stored signal with the given address
-						mSignalAdapter.updateRssiForDevice(device.getAddress(), rssi);
-						mSignalAdapter.updateTimestampForDevice(device.getAddress(), mDate.getTime());
-					}
-					// Add this signal to a list of signals found for this scan
-					mCurrentScan.addSignal(receivedSignal);
 				}
 			});
 		}
 	};
+	*/
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -92,9 +120,9 @@ public class BluetoothSearchActivity extends Activity {
 		setContentView(R.layout.activity_bluetooth_search);
 		ListView listView = (ListView)findViewById(R.id.list_bt_devices);
 		listView.setAdapter(mSignalAdapter);
-		mScanCache = new BluetoothScanCache();
+		//mScanCache = new BluetoothScanCache();
 
-		mHandler = new Handler();
+		//mHandler = new Handler();
 
 		// Use this check to determine whether BLE is supported on the device. Then
 		// you can selectively disable BLE-related features.
@@ -120,18 +148,18 @@ public class BluetoothSearchActivity extends Activity {
 		}
 		else { 
 			// Adapter exists and is enabled already
-			scanLeDevice(true);
+			//scanLeDevice(true);
 		}
 	}
 
 	@Override
 	protected void onDestroy() {
 		// Stop scan if it is running
-		scanLeDevice(false);
+		//scanLeDevice(false);
 
 		super.onDestroy();
 	}
-
+/*
 	private void scanLeDevice(final boolean enable) {
 		if (enable && !mScanning) {
 			// In SCAN_PERIOD ms, stop the scan
@@ -180,6 +208,7 @@ public class BluetoothSearchActivity extends Activity {
 			mScanCache.addScan(mCurrentScan);
 		}
 	}
+	*/
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -189,7 +218,7 @@ public class BluetoothSearchActivity extends Activity {
 		case REQUEST_ENABLE_BT:
 			if (resultCode == RESULT_OK) {
 				Toast.makeText(this, "Bluetooth enabled", Toast.LENGTH_SHORT).show();
-				scanLeDevice(true);
+				//scanLeDevice(true);
 			}
 			else {
 				Toast.makeText(this, "Bluetooth disabled", Toast.LENGTH_SHORT).show();
@@ -198,6 +227,7 @@ public class BluetoothSearchActivity extends Activity {
 		}
 	}
 
+	/*
 	private static String inputStreamToString(InputStream inputStream) throws IOException{
 		BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
 		String line = "";
@@ -209,6 +239,7 @@ public class BluetoothSearchActivity extends Activity {
 		return result;
 
 	}   
+	*/
 
 
 	public void onButtonClick(View v) {
@@ -216,9 +247,8 @@ public class BluetoothSearchActivity extends Activity {
 		switch (v.getId()) {
 
 		case R.id.button_send:
-			// Right now, converts the cached scans into JSON and then prints the JSON
-			// out the the debug console with tag "JSON". Now that we have the JSON, 
-			// it should be pretty easy to send the data to the server.
+			mBoundService.sendCachedData();
+			/*
 			JSONObject scanJson = mScanCache.toJSON();
 			try {
 				Log.d("JSON", scanJson.toString(2));
@@ -226,14 +256,39 @@ public class BluetoothSearchActivity extends Activity {
 				Log.e("JSON", e.getMessage());
 				System.exit(1);
 			}
-			Toast.makeText(this, "Sending JSON to server...", Toast.LENGTH_SHORT).show();
 			// Send JSON to server
 			new HttpAsyncTask(scanJson).execute(
 					"http://beacon-adventure.herokuapp.com/api/send_scans/");
+			*/
+			break;
+			
+		case R.id.button_start_service:
+			doBindService();
+			startService(new Intent(BluetoothSearchActivity.this, BluetoothSearchService.class));
+			break;
+		
+		case R.id.button_stop_service:
+			doUnbindService();
+			stopService(new Intent(BluetoothSearchActivity.this, BluetoothSearchService.class));
 			break;
 		}
 	}
+	
+	public void doBindService() {
+		mIsBound = true;
+		bindService(new Intent(this, BluetoothSearchService.class), mConnection, Context.BIND_AUTO_CREATE);
+	}
+	
+	public void doUnbindService() {
+		if (mIsBound) {
+			unbindService(mConnection);
+			mIsBound = false;
+ 
+			Toast.makeText(this, "Unbinding Service", Toast.LENGTH_SHORT).show();
+		}
+	}
 
+	/*
 	public String postData(String url, JSONObject jsonObject) {
 
 		// Create HTTP client
@@ -294,5 +349,6 @@ public class BluetoothSearchActivity extends Activity {
 			Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
 		}
 	}
+	*/
 
 }

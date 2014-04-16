@@ -11,5 +11,7 @@
     <string name="ble_not_supported">This device does not support BLE</string>
     <string name="bt_not_supported">This device does not support Bluetooth</string>
     <string name="send_data">Send scan data</string>
+    <string name="start_service">Start service</string>
+    <string name="stop_service">Stop service</string>
 
 </resources>

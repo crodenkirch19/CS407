@@ -34,6 +34,9 @@
         <activity
             android:name="com.example.bluetoothfinder.BluetoothSearchActivity" 
             android:label="@string/bluetooth_search_title" />
+        
+        <!-- Bluetooth search service -->
+        <service android:name="com.example.bluetoothfinder.BluetoothSearchService" />
         	
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
 
