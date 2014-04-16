@@ -160,6 +160,7 @@ public class BluetoothSearchService extends Service {
 		}
 		else {
 			// If enable is false, stop the scan.
+			mHandler.removeCallbacksAndMessages(null);
 			mScanning = false;
 			mBluetoothAdapter.stopLeScan(mLeScanCallback);
 			mScanCache.addScan(mCurrentScan);
