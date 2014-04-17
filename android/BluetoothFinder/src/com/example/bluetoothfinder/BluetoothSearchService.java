@@ -30,19 +30,10 @@ import android.widget.Toast;
 
 public class BluetoothSearchService extends Service {
 
-	/**
-	 * The binder is used to allow clients to access the service
-	 */
-	public class BluetoothSearchBinder extends Binder {
-		BluetoothSearchService getService() {
-			return BluetoothSearchService.this;
-		}
-	}
-	// An interface object used by clients to communicate with the service.
-	private final IBinder mBinder = new BluetoothSearchBinder();
-
 	private static final int SCAN_PERIOD = 1000; // Scan for 1 sec at a time
-	private static final int MAX_SCAN_INTERVAL = 300000; // 5 min
+	private static final int MAX_SCAN_INTERVAL = 1000 * 60 * 5; // 5 min
+	//private static final int CACHE_FLUSH_INTERVAL = 1000 * 60 * 60; // 1 hour
+	private static final int CACHE_FLUSH_INTERVAL = 1000 * 20; // 10 secs
 
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothScanCache mScanCache;
@@ -56,6 +47,17 @@ public class BluetoothSearchService extends Service {
 	
 	/////////////// SERVICE METHODS ///////////////////////
 
+	/**
+	 * The binder is used to allow clients to access the service
+	 */
+	public class BluetoothSearchBinder extends Binder {
+		BluetoothSearchService getService() {
+			return BluetoothSearchService.this;
+		}
+	}
+	// An interface object used by clients to communicate with the service.
+	private final IBinder mBinder = new BluetoothSearchBinder();
+	
 	@Override
 	public void onCreate() {
 		//super.onCreate();
@@ -72,6 +74,9 @@ public class BluetoothSearchService extends Service {
 
 		// Adapter exists and is enabled already (because we do so explicitly in the activity)
 		scanLeDevice(true);
+		
+		// Send cached data every CACHE_FLUSH_INTERVAL ms
+		setupCacheFlushHandler();
 	}
 
 	@Override
@@ -171,6 +176,19 @@ public class BluetoothSearchService extends Service {
 	
 	/////////////////// DATA SENDING METHODS /////////////////////////
 	
+	public void setupCacheFlushHandler() {
+		
+		// Flush the cache every CACHE_FLUSH_INTERVAL ms
+		mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				sendCachedData();
+				// After data is sent, set up another cache flusher
+				setupCacheFlushHandler();
+			}
+		}, CACHE_FLUSH_INTERVAL);
+	}
+	
 	public void sendCachedData() {
 		Toast.makeText(this, "Sending JSON to server...", Toast.LENGTH_SHORT).show();
 		JSONObject scanJson = mScanCache.toJSON();
@@ -217,7 +235,6 @@ public class BluetoothSearchService extends Service {
 		// Set some headers to inform server about the type of the content   
 		httpPost.setHeader("Accept", "application/json");
 		httpPost.setHeader("Content-type", "application/json");
-
 		String result = "";
 		try {
 			// Execute POST request to the given URL
@@ -251,8 +268,25 @@ public class BluetoothSearchService extends Service {
 		// onPostExecute displays the results of the AsyncTask.
 		@Override
 		protected void onPostExecute(String result) {
-			//Toast.makeText(getBaseContext(), "Data Sent!", Toast.LENGTH_SHORT).show();
-			Toast.makeText(getBaseContext(), result, Toast.LENGTH_LONG).show();
+			//Toast.makeText(BluetoothSearchService.this, "Data Sent!", Toast.LENGTH_SHORT).show();
+			//Toast.makeText(BluetoothSearchService.this, result, Toast.LENGTH_SHORT).show();
+			
+			// Clear the scan cache only if the data was successfully sent
+			String resultString = null;
+			try {
+				JSONObject resultJSON = new JSONObject(result);
+				resultString = resultJSON.getString("response");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (resultString != null && resultString.equals("success!")) {
+				Toast.makeText(BluetoothSearchService.this, "Data sent, clearing scan cache", Toast.LENGTH_SHORT).show();
+				mScanCache.clear();
+			}
+			else {
+				Toast.makeText(BluetoothSearchService.this, "Failed to send data, keeping cached scans", Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 }
