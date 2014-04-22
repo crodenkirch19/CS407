@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     url(r'^logs/$', views.logs),
     url(r'^stores/$', views.stores_index),
     url(r'^stores/(\d+)/$', views.store_detail),
+    url(r'^stores/(\d+)/scans/$', views.store_scans),
     (r'^login/$', 'django.contrib.auth.views.login'),
     (r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
 
