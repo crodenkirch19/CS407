@@ -30,9 +30,24 @@
 		
     </ListView>
     
+    <Button
+        android:id="@+id/button_start_service"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onButtonClick"
+        android:text="@string/start_service" 
+        android:layout_above="@+id/button_stop_service" />
+   	<Button
+        android:id="@id/button_stop_service"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onButtonClick"
+        android:text="@string/stop_service" 
+        android:layout_above="@+id/button_send" />
+    
     <!-- Send Data button -->
     <Button
-        android:id="@+id/button_send"
+        android:id="@id/button_send"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onButtonClick"
