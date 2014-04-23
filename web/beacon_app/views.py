@@ -12,26 +12,9 @@ def index(request):
     Main page clients look at when loading
     beacon-adventure.herokuapp.com
     """
-
-    # Respond to user login or logout event
-    if request.POST:
-        action = request.POST.get('action')
-        if action == 'login':
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            # user = authenticate(username=username, password=password)
-            # if user is not None:
-            #     if user.is_active:
-            #         login(request, user)
-            #         return redirect("/logs/")
-        elif action == 'logout':
-            logout(request)
-            return redirect("/")
-        else:
-            return render(request, "index.html", {})
     return render(request, "index.html", {})
 
-def logs(request):
+def print_logs(request):
     """
     beacon-adventure.herokuapp.com/logs/
     Loads the scan logs from the database
@@ -53,10 +36,13 @@ def logs(request):
 def stores_index(request):
     stores = Floorplan.objects.filter(owner=request.user)
 
-    return render(request, "store_index.html", { "store_list":stores })
+    return render(request, "store_index.html", {"store_list":stores})
 
 @login_required
 def store_detail(request, store_number):
+    """
+    Detail page for a given store.
+    """
     store = get_object_or_404(Floorplan, pk=store_number)
     beacon_list = Beacon.objects.filter(store=store)
     if store.owner != request.user:
@@ -65,7 +51,7 @@ def store_detail(request, store_number):
 
 @login_required
 def store_scans(request, store_number):
-    """ Return a JSON-formatted representation of 
+    """ Return a JSON-formatted representation of
         all of the scans at this store that we want to show.
         This will be formatted as an array of path arrays,
         each path array containing a set of objects with an
@@ -75,7 +61,7 @@ def store_scans(request, store_number):
     json_data = {}
     json_data["result"] = "success"
     json_data["paths"] = []
-    path1 = [ 
+    path1 = [
     {
         "x":4,
         "y":4,
@@ -106,7 +92,7 @@ def store_scans(request, store_number):
         "y":7,
         "time":1398197193
     }]
-    path2 = [ 
+    path2 = [
     {
         "x":12,
         "y":12,

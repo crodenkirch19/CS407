@@ -12,11 +12,12 @@
 {% endblock %}
 
 {% block javascript %}
-<script type="text/javascript"> 
-    var beacons = [{% for beacon in beacon_list %} 
-    { "address":"{{ beacon.mac_address }}", "x":{{ beacon.location_x }}, "y":{{ beacon.location_y }} } , {% endfor %}];
-    var store = { "scale":{{ store.scale }}, "image_url":"{{ store.blueprint_url }}" };
-</script>
 <script src="/static/js/d3.v3.min.js" charset="utf-8"></script>
 <script src="/static/js/store_detail.js"></script>
+<script type="text/javascript"> 
+    var beacons = [{% for beacon in beacon_list %}
+    { "address":"{{ beacon.mac_address }}", "x":{{ beacon.location_x }}, "y":{{ beacon.location_y }} } , {% endfor %}];
+    var store = { "scale":{{ store.scale }}, "image_url":"{{ store.blueprint_url }}" };
+    var visualiser = new Visualiser("app_container", beacons, store);
+</script>
 {% endblock %}
