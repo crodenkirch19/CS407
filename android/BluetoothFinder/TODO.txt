@@ -1,6 +1,5 @@
 BluetoothFinder TODO
 --------------------
-- Add functionality to coupon page
 
 DONE
 ----
@@ -9,3 +8,4 @@ DONE
 - Make service keep track of "score" for giving users coupons
 - Implement front-end user interface
 - Add unique phone ID to JSON data (randomly generated)
+- Add functionality to coupon page
