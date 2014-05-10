@@ -8,6 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 import dateutil.parser
 import simplejson
 
+import random
+
 import json
 
 import datetime
@@ -69,10 +71,14 @@ def send_scans(request):
             except AttributeError:
                 return error_response(400, 'missing attributes on input data')
 
-            # If this beacon doesn't exist throw an error
+            # If this beacon doesn't exist add it to the database
             matching_beacons = Beacon.objects.filter(mac_address=scan["addr"])
             if len(matching_beacons) == 0:
-                return error_response(400, 'no beacon with the specified address was found')
+                b = Beacon(mac_address=scan["addr"],
+                           store=Floorplan.objects.all()[0],
+                           location_x=random.randint(1, 100),
+                           location_y=random.randint(1, 100))
+                # return error_response(400, 'no beacon with the specified address was found')
             else:
                 b = matching_beacons[0]
 
