@@ -15,7 +15,8 @@ function Visualiser(root_container_id, beacons, store) {
 
     var self = this;
     this.load_scans(function(scans) {
-        self.draw_scans(scans);
+        // 'heatmap', 'polyline'
+        self.draw_scans(scans, 'heatmap');
     });
 }
 
@@ -39,29 +40,48 @@ Visualiser.prototype.draw_beacons = function(beacons) {
     }
 };
 
-Visualiser.prototype.draw_scans = function(scans) {
+// TODO add more visualisations
+// TODO heatmap http://www.patrick-wied.at/static/heatmapjs/#
+// TODO cloud of points
+
+Visualiser.prototype.draw_scans = function(scans, render_type) {
     // Scans is a nested array of user paths
     if (!scans)
         return;
 
-    // Draw a polyline for each scan
-    for (var i = 0; i < scans.length; i++) {
-        // Fill a string with all of the points to put in the polyline
-        var polyPoints = "";
-        var path = scans[i];
-        for (var j = 0; j < path.length; j++) {
-            var scan = path[j];
-            var storeX = scan.x * this.store.scale;
-            var storeY = scan.y * this.store.scale;
-            polyPoints += "" + storeX + "," + storeY + " ";
-        }
+    if (render_type == 'heatmap') {
+        // var map = h337.create({
+        //     "element":document.getElementById("app_container"),
+        //     "radius":25,
+        //     "visible":true
+        // })
 
-        // Draw the polyline
-        this.svg.append("polyline")
-            .attr("points", polyPoints)
-            .style("fill","none")
-            .style("stroke-width","4")
-            .style("stroke","Sienna");
+        // map.get("canvas").onclick = function(ev){
+        //     var pos = h337.util.mousePosition(ev);
+        //     map.store.addDataPoint(pos[0],pos[1]);
+        // };
+            
+    }
+    if (render_type == 'polyline') {
+        // Draw a polyline for each scan
+        for (var i = 0; i < scans.length; i++) {
+            // Fill a string with all of the points to put in the polyline
+            var polyPoints = "";
+            var path = scans[i];
+            for (var j = 0; j < path.length; j++) {
+                var scan = path[j];
+                var storeX = scan.x * this.store.scale;
+                var storeY = scan.y * this.store.scale;
+                polyPoints += "" + storeX + "," + storeY + " ";
+            }
+
+            // Draw the polyline
+            this.svg.append("polyline")
+                .attr("points", polyPoints)
+                .style("fill","none")
+                .style("stroke-width","4")
+                .style("stroke","Sienna");
+        }
     }
 };
 

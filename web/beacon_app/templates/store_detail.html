@@ -7,6 +7,16 @@
 {% block content %}
   <div class="container">
     <h1 class="page-header"> Overview of {{ store.name }} </h1>
+
+    <div class="btn-group" data-toggle="buttons">
+      <label class="btn btn-primary">
+        <input type="radio" name="options" id="btn_heatmap" checked> Heatmap
+      </label>
+      <label class="btn btn-primary">
+        <input type="radio" name="options" id="btn_polyline"> Polyline
+      </label>
+    </div>
+    <hr>
     <div id="app_container"></div>
   </div>
 {% endblock %}
@@ -14,6 +24,7 @@
 {% block javascript %}
 <script src="/static/js/d3.v3.min.js" charset="utf-8"></script>
 <script src="/static/js/store_detail.js"></script>
+<script src="/static/js/heatmap.js"></script>
 <script type="text/javascript"> 
     var beacons = [{% for beacon in beacon_list %}
     { "address":"{{ beacon.mac_address }}", "x":{{ beacon.location_x }}, "y":{{ beacon.location_y }} } , {% endfor %}];

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import render
 from django.template import RequestContext, loader, Context, Template
 from django.http import HttpResponse
-from beacon_api.models import Scan, Log, Beacon
+from beacon_api.models import Scan, Log, Beacon, Floorplan, MobileUser
 from datetime import datetime
 from django.views.decorators.csrf import csrf_exempt
 import dateutil.parser
@@ -59,7 +59,10 @@ def send_scans(request):
     # So we know we have a valid scan. Save it to the database.
     for scan_group in scans:
         for scan in scan_group:
-            log = Log.objects.all()[0] # TODO make new log for each scan
+            log = Log(store=Floorplan.objects.all()[0], 
+                      MobileUser=MobileUser.objects.all()[0])
+            log.save()
+
             try:
                 time = dateutil.parser.parse(scan["time"])
                 distance = scan["dist"]

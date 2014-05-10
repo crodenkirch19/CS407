@@ -28,7 +28,7 @@ def print_logs(request):
     logs = Scan.objects.all()
     outstring = "<p>["
     for log in logs:
-        outstring = "%s<br>    { 'log':%s, 'distance':%s, 'beacon':%s, time:%s }" % (outstring, log.log, log.distance, log.beacon, log.time)
+        outstring = "%s<br>    { 'log':%s, 'distance':%s, 'beacon':%s, time:%s }" % (outstring, log.log, log.calc_distance(), log.beacon, log.time)
     outstring = "%s <br>]</p>" % outstring
     return HttpResponse(outstring)
 
