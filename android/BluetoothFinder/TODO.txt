@@ -1,9 +1,11 @@
 BluetoothFinder TODO
 --------------------
-- Make service keep track of "score" for giving users coupons
-- Implement front-end user interface
 
 DONE
 ----
 - Make service start automatically on BluetoothActivity.create()
 - Make service automatically send data on some interval
+- Make service keep track of "score" for giving users coupons
+- Implement front-end user interface
+- Add unique phone ID to JSON data (randomly generated)
+- Add functionality to coupon page

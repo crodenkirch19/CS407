@@ -35,6 +35,11 @@
             android:name="com.example.bluetoothfinder.BluetoothSearchActivity" 
             android:label="@string/bluetooth_search_title" />
         
+        <!-- Spend points activity -->
+        <activity
+            android:name="com.example.bluetoothfinder.SpendPointsActivity" 
+            android:label="@string/spend_points_title" />
+        
         <!-- Bluetooth search service -->
         <service android:name="com.example.bluetoothfinder.BluetoothSearchService" />
         	

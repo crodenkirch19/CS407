@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.UUID;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -21,10 +22,13 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -34,6 +38,10 @@ public class BluetoothSearchService extends Service {
 	private static final int MAX_SCAN_INTERVAL = 1000 * 60 * 5; // 5 min
 	//private static final int CACHE_FLUSH_INTERVAL = 1000 * 60 * 60; // 1 hour
 	private static final int CACHE_FLUSH_INTERVAL = 1000 * 20; // 10 secs
+	public static final String PREFS_NAME = "btfPrefs";
+	public static final String BT_POINTS_SEND = "com.example.bluetoothfinder.SEND_POINTS";
+	private static String uniqueID = null;
+	private static final String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
 
 	private BluetoothAdapter mBluetoothAdapter;
 	private BluetoothScanCache mScanCache;
@@ -43,6 +51,10 @@ public class BluetoothSearchService extends Service {
 	private Handler mHandler;
 	private boolean mCanSeeBeacon;
 	private int mWaitPeriod = 5000; // Wait for 5 secs between scans by default
+	
+	private LocalBroadcastManager mBroadcaster;
+	private SharedPreferences.Editor mPrefEditor;
+	private int mPoints = 0;
 
 	
 	/////////////// SERVICE METHODS ///////////////////////
@@ -61,9 +73,16 @@ public class BluetoothSearchService extends Service {
 	@Override
 	public void onCreate() {
 		//super.onCreate();
-		Toast.makeText(this, "Service Created", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "Service Created", Toast.LENGTH_SHORT).show();
+		mBroadcaster = LocalBroadcastManager.getInstance(this);
+		
+		// Setup shared preferences
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		mPoints = settings.getInt("points", 0);
+		mPrefEditor = settings.edit();
+		
 		// Initialize our signal adapter and hook it up to this activity
-		mScanCache = new BluetoothScanCache();
+		mScanCache = new BluetoothScanCache(this.id());
 
 		mHandler = new Handler();
 
@@ -88,16 +107,37 @@ public class BluetoothSearchService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
 		return Service.START_STICKY;
 	}
 
 	@Override
 	public IBinder onBind(Intent i) {
-		Toast.makeText(this, "Binding Service", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, "Binding Service", Toast.LENGTH_SHORT).show();
 		return mBinder;
 	}
 	
+	public void sendPointsToUI() {
+		Intent intent = new Intent(BT_POINTS_SEND);
+		intent.putExtra("points", mPoints);
+		mBroadcaster.sendBroadcast(intent);
+		Log.d("Points", "Points: " + mPoints);
+	}
+	
+	public String id() {
+	    if (uniqueID == null) {
+	        SharedPreferences sharedPrefs = this.getSharedPreferences(
+	                PREF_UNIQUE_ID, Context.MODE_PRIVATE);
+	        uniqueID = sharedPrefs.getString(PREF_UNIQUE_ID, null);
+	        if (uniqueID == null) {
+	            uniqueID = UUID.randomUUID().toString();
+	            Editor editor = sharedPrefs.edit();
+	            editor.putString(PREF_UNIQUE_ID, uniqueID);
+	            editor.commit();
+	        }
+	    }
+	    return uniqueID;
+	}
 	
 	//////////////// BLUETOOTH SCANNING METHODS ////////////////////
 	
@@ -118,6 +158,10 @@ public class BluetoothSearchService extends Service {
 
 				// Add this signal to a list of signals found for this scan
 				mCurrentScan.addSignal(receivedSignal);
+				
+				// Increment the user's points and update the UI
+				mPoints++;
+				sendPointsToUI();
 				
 				Log.d("Scan", "Found device with RSSI " + rssi);
 			}
@@ -150,6 +194,7 @@ public class BluetoothSearchService extends Service {
 					mHandler.postDelayed(new Runnable() {
 						@Override
 						public void run() {
+							sendPointsToUI();
 							scanLeDevice(true);
 						}
 					}, mWaitPeriod);
@@ -172,7 +217,19 @@ public class BluetoothSearchService extends Service {
 		}
 	}
 	
+	public void resetPoints() {
+		mPoints = 0;
+		mPrefEditor.putInt("points", mPoints);
+		mPrefEditor.commit();
+		sendPointsToUI();
+	}
 	
+	public void subtractPoints(int amount) {
+		mPoints -= amount;
+		mPrefEditor.putInt("points", mPoints);
+		mPrefEditor.commit();
+		sendPointsToUI();
+	}
 	
 	/////////////////// DATA SENDING METHODS /////////////////////////
 	
@@ -182,7 +239,8 @@ public class BluetoothSearchService extends Service {
 		mHandler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
-				sendCachedData();
+				sendCachedData(); // send data
+				
 				// After data is sent, set up another cache flusher
 				setupCacheFlushHandler();
 			}
@@ -283,6 +341,10 @@ public class BluetoothSearchService extends Service {
 			if (resultString != null && resultString.equals("success!")) {
 				Toast.makeText(BluetoothSearchService.this, "Data sent, clearing scan cache", Toast.LENGTH_SHORT).show();
 				mScanCache.clear();
+				
+				// when we flush the scan cache, also commit the user's points to storage
+				mPrefEditor.putInt("points", mPoints);
+				mPrefEditor.commit();
 			}
 			else {
 				Toast.makeText(BluetoothSearchService.this, "Failed to send data, keeping cached scans", Toast.LENGTH_SHORT).show();

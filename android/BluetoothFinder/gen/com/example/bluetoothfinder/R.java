@@ -221,19 +221,22 @@ containing a value of this type.
         public static final int ic_plusone_tall_off_client=0x7f02001c;
     }
     public static final class id {
-        public static final int action_settings=0x7f05000f;
+        public static final int action_settings=0x7f050012;
+        public static final int button_reset_points=0x7f050009;
         public static final int button_search=0x7f05000c;
-        public static final int button_send=0x7f05000a;
+        public static final int button_send=0x7f050008;
         public static final int button_settings=0x7f05000d;
-        public static final int button_start_service=0x7f050008;
-        public static final int button_stop_service=0x7f050009;
-        public static final int horiz_divider=0x7f050006;
+        public static final int button_spend_points=0x7f05000a;
+        public static final int button_start_service=0x7f050006;
+        public static final int button_stop_service=0x7f050007;
+        public static final int coupon_description=0x7f050010;
+        public static final int coupon_list=0x7f05000f;
+        public static final int coupon_price=0x7f050011;
         public static final int hybrid=0x7f050004;
-        public static final int list_bt_devices=0x7f050007;
         public static final int none=0x7f050000;
         public static final int normal=0x7f050001;
+        public static final int points_display=0x7f050005;
         public static final int satellite=0x7f050002;
-        public static final int scan_interval=0x7f050005;
         public static final int sign_in_button=0x7f05000e;
         public static final int terrain=0x7f050003;
         public static final int text_title=0x7f05000b;
@@ -244,6 +247,8 @@ containing a value of this type.
     public static final class layout {
         public static final int activity_bluetooth_search=0x7f030000;
         public static final int activity_main=0x7f030001;
+        public static final int activity_spend_points=0x7f030002;
+        public static final int layout_coupon=0x7f030003;
     }
     public static final class menu {
         public static final int main=0x7f0a0000;
@@ -275,9 +280,9 @@ containing a value of this type.
         [CHAR LIMIT=70] 
          */
         public static final int auth_client_using_bad_version_title=0x7f060014;
-        public static final int ble_not_supported=0x7f060021;
+        public static final int ble_not_supported=0x7f060022;
         public static final int bluetooth_search_title=0x7f060020;
-        public static final int bt_not_supported=0x7f060022;
+        public static final int bt_not_supported=0x7f060023;
         public static final int button_search=0x7f06001d;
         public static final int button_settings=0x7f06001e;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
@@ -352,9 +357,12 @@ containing a value of this type.
          */
         public static final int common_signin_button_text_long=0x7f060013;
         public static final int hello_world=0x7f06001c;
-        public static final int send_data=0x7f060023;
-        public static final int start_service=0x7f060024;
-        public static final int stop_service=0x7f060025;
+        public static final int reset_points=0x7f060025;
+        public static final int send_data=0x7f060024;
+        public static final int spend_points=0x7f060026;
+        public static final int spend_points_title=0x7f060021;
+        public static final int start_service=0x7f060027;
+        public static final int stop_service=0x7f060028;
     }
     public static final class style {
         /** 

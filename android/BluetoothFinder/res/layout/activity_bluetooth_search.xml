@@ -9,29 +9,15 @@
     
     <!-- Scan interval display -->
     <TextView 
-        android:id="@+id/scan_interval"
+        android:id="@+id/points_display"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    
-    <!-- Horizontal divider -->
-    <View
-        android:id="@+id/horiz_divider"
-    	android:layout_width="fill_parent"
-    	android:layout_height="1dp"
-    	android:layout_below="@id/scan_interval"
-    	android:background="@android:color/darker_gray" />
-    
-    <!-- The list of nearby bluetooth devices -->
-    <ListView
-        android:id="@+id/list_bt_devices"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
-        android:layout_below="@id/horiz_divider">
-		
-    </ListView>
+        android:layout_height="match_parent"
+        android:layout_above="@+id/button_start_service"
+        android:gravity="center"
+        android:textSize="48sp" />
     
     <Button
-        android:id="@+id/button_start_service"
+        android:id="@id/button_start_service"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onButtonClick"
@@ -52,6 +38,22 @@
         android:layout_height="wrap_content"
         android:onClick="onButtonClick"
         android:text="@string/send_data" 
+        android:layout_above="@+id/button_reset_points" />
+    
+    <Button
+        android:id="@id/button_reset_points"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onButtonClick"
+        android:text="@string/reset_points" 
+        android:layout_above="@+id/button_spend_points" />
+    
+    <Button
+        android:id="@id/button_spend_points"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onButtonClick"
+        android:text="@string/spend_points" 
         android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

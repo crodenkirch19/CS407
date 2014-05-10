@@ -3,16 +3,20 @@ package com.example.bluetoothfinder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.util.Log;
 
 public class BluetoothScanCache {
 
 	private ArrayList<BluetoothScan> mScanList;
+	private String mUUID;
 
-	public BluetoothScanCache() {
+	public BluetoothScanCache(String uuid) {
 		mScanList = new ArrayList<BluetoothScan>();
+		mUUID = uuid;
 	}
 
 	public void addScan(BluetoothScan scan) {
@@ -25,7 +29,7 @@ public class BluetoothScanCache {
 		// Convert passive list to JSON
 		JSONObject json = new JSONObject();
 		try {
-			json.put("token", "foo bar baz");
+			json.put("token", mUUID);
 			JSONArray scanArray = new JSONArray();
 			for (BluetoothScan scan : mScanList) {
 				scanArray.put(scan.toJSON());
