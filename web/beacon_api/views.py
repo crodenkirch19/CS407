@@ -8,6 +8,9 @@ from django.views.decorators.csrf import csrf_exempt
 import dateutil.parser
 import simplejson
 
+import logging
+logger = logging.getLogger(__name__)
+
 import random
 
 import json
@@ -78,6 +81,9 @@ def send_scans(request):
                            store=Floorplan.objects.all()[0],
                            location_x=random.randint(1, 100),
                            location_y=random.randint(1, 100))
+                b.save()
+                print "==== New beacon added: %s ==== " % mac_address
+
                 # return error_response(400, 'no beacon with the specified address was found')
             else:
                 b = matching_beacons[0]

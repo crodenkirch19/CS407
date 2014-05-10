@@ -27,6 +27,9 @@ class Beacon(models.Model):
     location_x = models.PositiveIntegerField()
     location_y = models.PositiveIntegerField()
 
+    def __str__(self):
+        return self.mac_address
+
 # Represents a single comlete scan instance
 # Each log will have data from multiple beacons
 # But only data from a single MobileUser in a single location
@@ -110,4 +113,7 @@ class Scan(models.Model):
         """
         Calculates the distance in feet from the beacon
         """
-        return self.distance
+        return abs(self.distance)
+
+    def __str__(self):
+        return str(self.time)

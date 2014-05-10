@@ -4,7 +4,11 @@ from django.http import HttpResponse, Http404
 from django.contrib.auth import authenticate, login, logout
 from beacon_api.models import Scan, Floorplan, Beacon, Log
 from django.contrib.auth.decorators import login_required
+
+import logging
 import json
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -43,6 +47,8 @@ def store_detail(request, store_number):
     """
     Detail page for a given store.
     """
+    print 'Store detail loaded'
+
     store = get_object_or_404(Floorplan, pk=store_number)
     beacon_list = Beacon.objects.filter(store=store)
     if store.owner != request.user:
@@ -58,89 +64,89 @@ def store_scans(request, store_number):
         x, y, and time property.
     """
     # calc_user_path isn't implemented so just return a piece of sample data
-    json_data = {}
-    json_data["result"] = "success"
-    json_data["paths"] = []
-    path1 = [
-    {
-        "x":4,
-        "y":4,
-        "time":1398197183
-    },
-    {
-        "x":5,
-        "y":4,
-        "time":1398197185
-    },
-    {
-        "x":6,
-        "y":4,
-        "time":1398197187
-    },
-    {
-        "x":6,
-        "y":5,
-        "time":1398197189
-    },
-    {
-        "x":6,
-        "y":6,
-        "time":1398197191
-    },
-    {
-        "x":6,
-        "y":7,
-        "time":1398197193
-    }]
-    path2 = [
-    {
-        "x":12,
-        "y":12,
-        "time":1398197183
-    },
-    {
-        "x":12,
-        "y":10,
-        "time":1398197185
-    },
-    {
-        "x":12,
-        "y":9,
-        "time":1398197187
-    },
-    {
-        "x":10,
-        "y":9,
-        "time":1398197189
-    },
-    {
-        "x":9,
-        "y":8,
-        "time":1398197191
-    },
-    {
-        "x":9,
-        "y":9,
-        "time":1398197193
-    }]
-    json_data["paths"].append(path1)
-    json_data["paths"].append(path2)
-    return HttpResponse(json.dumps(json_data))
-
-    # store = get_object_or_404(Floorplan, pk=store_number)
-    # logs = Log.objects.filter(store=store)
     # json_data = {}
     # json_data["result"] = "success"
     # json_data["paths"] = []
-    # for log in logs:
-    #     path = log.calc_user_path()
-    #     json_path = []
-    #     json_data["paths"].append(json_path)
-    #     for location in path:
-    #         x, y, time = location
-    #         json_path.append({
-    #             "x":x,
-    #             "y":y,
-    #             "time":time
-    #         })
+    # path1 = [
+    # {
+    #     "x":4,
+    #     "y":4,
+    #     "time":1398197183
+    # },
+    # {
+    #     "x":5,
+    #     "y":4,
+    #     "time":1398197185
+    # },
+    # {
+    #     "x":6,
+    #     "y":4,
+    #     "time":1398197187
+    # },
+    # {
+    #     "x":6,
+    #     "y":5,
+    #     "time":1398197189
+    # },
+    # {
+    #     "x":6,
+    #     "y":6,
+    #     "time":1398197191
+    # },
+    # {
+    #     "x":6,
+    #     "y":7,
+    #     "time":1398197193
+    # }]
+    # path2 = [
+    # {
+    #     "x":12,
+    #     "y":12,
+    #     "time":1398197183
+    # },
+    # {
+    #     "x":12,
+    #     "y":10,
+    #     "time":1398197185
+    # },
+    # {
+    #     "x":12,
+    #     "y":9,
+    #     "time":1398197187
+    # },
+    # {
+    #     "x":10,
+    #     "y":9,
+    #     "time":1398197189
+    # },
+    # {
+    #     "x":9,
+    #     "y":8,
+    #     "time":1398197191
+    # },
+    # {
+    #     "x":9,
+    #     "y":9,
+    #     "time":1398197193
+    # }]
+    # json_data["paths"].append(path1)
+    # json_data["paths"].append(path2)
     # return HttpResponse(json.dumps(json_data))
+
+    store = get_object_or_404(Floorplan, pk=store_number)
+    logs = Log.objects.filter(store=store)
+    json_data = {}
+    json_data["result"] = "success"
+    json_data["paths"] = []
+    for log in logs:
+        path = log.calc_user_path()
+        json_path = []
+        json_data["paths"].append(json_path)
+        for location in path:
+            x, y, time = location
+            json_path.append({
+                "x":x,
+                "y":y,
+                "time":time
+            })
+    return HttpResponse(json.dumps(json_data))

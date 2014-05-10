@@ -3,6 +3,15 @@ from beacon_api import models
 
 admin.site.register(models.Floorplan)
 admin.site.register(models.MobileUser)
-admin.site.register(models.Beacon)
+
+class BeaconAdmin(admin.ModelAdmin):
+    list_display = ('mac_address',)
+
+admin.site.register(models.Beacon, BeaconAdmin)
+
 admin.site.register(models.Log)
-admin.site.register(models.Scan)
+
+class ScanAdmin(admin.ModelAdmin):
+    list_display = ('beacon', 'time', 'distance')
+
+admin.site.register(models.Scan, ScanAdmin)
