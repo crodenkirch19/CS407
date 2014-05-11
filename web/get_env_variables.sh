@@ -21,3 +21,4 @@ for x in `heroku config | tail -n +2`; do
 done
 
 cd web
+

@@ -23,7 +23,7 @@ class Beacon(models.Model):
     mac_address = models.CharField(max_length=17)
     store = models.ForeignKey(Floorplan)
     # Location data is stored relative to the floorplan image
-    # Top-left pixel is (0,0)
+    # Units are in feet. Top-left pixel is (0,0)
     location_x = models.PositiveIntegerField()
     location_y = models.PositiveIntegerField()
 
@@ -36,6 +36,9 @@ class Beacon(models.Model):
 class Log(models.Model):
     store = models.ForeignKey(Floorplan)
     MobileUser = models.ForeignKey(MobileUser)
+
+    def __str__(self):
+        return "Log %d" % self.id
 
     def calc_user_path(self):
         """

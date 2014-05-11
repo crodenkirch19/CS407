@@ -34,9 +34,10 @@ Visualiser.prototype.draw_beacons = function(beacons) {
         this.svg.append("circle")
             .attr("cx", beaconX)
             .attr("cy", beaconY)
-            .attr("r", 4)
+            .attr("r", 12)
             .style("fill", "FireBrick")
-            .style("stroke", "Maroon");
+            .style("stroke", "Maroon")
+            .style("stroke-width", "3");
     }
 };
 
@@ -88,16 +89,16 @@ Visualiser.prototype.draw_scans = function(scans, render_type) {
 Visualiser.prototype.load_scans = function(callback) {
     // Load beacons from json file on server
 
-    $.getJSON("scans", function(data) {
-        // See if loading was a success
-        if (data.result === "success") {
-            callback(data.paths);
-        }
-        else {
-            console.log("ERROR: failed to load scans");
-            callback();
-        }
-    });
+    // $.getJSON("scans", function(data) {
+    //     // See if loading was a success
+    //     if (data.result === "success") {
+    //         callback(data.paths);
+    //     }
+    //     else {
+    //         console.log("ERROR: failed to load scans");
+    //         callback();
+    //     }
+    // });
 };
 
 
@@ -127,7 +128,7 @@ Visualiser.prototype.init = function(root_container_id) {
     var zoom = d3.behavior.zoom()
         .x(x)
         .y(y)
-        .scaleExtent([1, 10])
+        .scaleExtent([.2, 10])
         .on("zoom", zoomed);
 
     var svg = d3.select("#" + root_container_id).append("svg")
@@ -145,8 +146,8 @@ Visualiser.prototype.init = function(root_container_id) {
     content.append("image")
         .attr("x","0")
         .attr("y","0")
-        .attr("width",width)
-        .attr("height",height)
+        .attr("width", 5100)
+        .attr("height", 3300)
         .attr("xlink:href",this.store.image_url);
 
     return content;
