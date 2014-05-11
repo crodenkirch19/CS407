@@ -279,10 +279,30 @@ def standardDev(inputList):
 
     return stdDev
 
-'''
-used to test the function, seems to work well!
-'''
-goodValue, xpos, ypos = triangulate(-10, 10, -10, 10, 1, 0, 1.1, 1, 2, 1.1, 2,1,1.1)
-print(goodValue)
-print(xpos)
-print(ypos)
+
+# ===== RSSI UTILITIES =====
+
+# rssi = received signal strength indicator
+# a = rssi 1 meter from device (avg of 10 samples)
+# n = propagation constant or path-loss exponent (free space has n = 2)
+a = -78.1
+n = 2
+
+#Calculations Based Off Excel Trend Line
+#x = -10
+#x = -x
+#print (x)
+#print (0.0001*x**3 - 0.021*x**2 + 1.2796*x + 59.381)
+
+#define conversion from meters to feet
+def meters_to_feet(meters):
+    return meters * 3.2808399
+
+def rssi_to_feet(rssi):
+        y = ((rssi - a)/(-10*n))
+        distanceMeters = math.pow(10, y)
+        distanceFeet = meters_to_feet(distanceMeters)
+        return distanceFeet
+
+def test(rssi_test):
+        print "feet:", round(rssi_to_feet(rssi_test), 2)

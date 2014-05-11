@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib import auth
-from beacon_api.shared_functions import triangulate
+from beacon_api.shared_functions import triangulate, rssi_to_feet
 
 # A single floorplan representing a store
 class Floorplan(models.Model):
@@ -49,7 +49,7 @@ class Log(models.Model):
         """
         # Get an array of Scan objects corresponding to this log
         # Each of these gives the distance to a given beacon at a given time
-        scans = Scan.objects.filter(log=self)
+        scans = Scan.objects.filter(log=self).prefetch_related('beacon')
 
         # Scan pattern goes like:
         # 1 second scan, 5 second rest, 1 second scan, etc.
@@ -98,9 +98,21 @@ class Log(models.Model):
                 beacon_args.append(scan[1].location_x)
                 beacon_args.append(scan[1].location_y)
                 beacon_args.append(scan[0])
-            good_value, xpos, ypos = triangulate(42, 250, 20, 180, *beacon_args)
+            try:
+                good_value, xpos, ypos = triangulate(52, 226, 20, 152, *beacon_args)
+            except ValueError:
+                # print "Error triangulating with inputs \
+                # xMin=%d, xMax=%d, yMin=%d, yMax=%d, beacons=%s" \
+                # % (42, 250, 20, 180, str(beacon_args))
+                continue
             if good_value:
-                return_list.append((xpos, ypos, group[0].time))
+                time = group[0][2]
+                return_list.append((xpos, ypos, time))
+            # else:
+            #     print "Error triangulating with inputs \
+            #     xMin=%d, xMax=%d, yMin=%d, yMax=%d, beacons=%s" \
+            #     % (42, 250, 20, 180, str(beacon_args))
+
 
         return return_list
 
@@ -116,7 +128,7 @@ class Scan(models.Model):
         """
         Calculates the distance in feet from the beacon
         """
-        return abs(self.distance)
+        return rssi_to_feet(self.distance)
 
     def __str__(self):
         return str(self.time)

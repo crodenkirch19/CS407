@@ -143,10 +143,10 @@ def store_scans(request, store_number):
         json_path = []
         json_data["paths"].append(json_path)
         for location in path:
-            x, y, time = location
+            x, y, t = location
             json_path.append({
                 "x":x,
                 "y":y,
-                "time":time
+                "time":str(t)
             })
     return HttpResponse(json.dumps(json_data))

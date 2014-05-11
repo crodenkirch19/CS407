@@ -16,7 +16,7 @@ function Visualiser(root_container_id, beacons, store) {
     var self = this;
     this.load_scans(function(scans) {
         // 'heatmap', 'polyline'
-        self.draw_scans(scans, 'heatmap');
+        self.draw_scans(scans, 'polyline');
     });
 }
 
@@ -51,17 +51,16 @@ Visualiser.prototype.draw_scans = function(scans, render_type) {
         return;
 
     if (render_type == 'heatmap') {
-        // var map = h337.create({
-        //     "element":document.getElementById("app_container"),
-        //     "radius":25,
-        //     "visible":true
-        // })
+        var map = h337.create({
+            "element":document.getElementById("app_container"),
+            "radius":25,
+            "visible":true
+        })
 
-        // map.get("canvas").onclick = function(ev){
-        //     var pos = h337.util.mousePosition(ev);
-        //     map.store.addDataPoint(pos[0],pos[1]);
-        // };
-            
+        map.get("canvas").onclick = function(ev){
+            var pos = h337.util.mousePosition(ev);
+            map.store.addDataPoint(pos[0],pos[1]);
+        };  
     }
     if (render_type == 'polyline') {
         // Draw a polyline for each scan
@@ -89,16 +88,16 @@ Visualiser.prototype.draw_scans = function(scans, render_type) {
 Visualiser.prototype.load_scans = function(callback) {
     // Load beacons from json file on server
 
-    // $.getJSON("scans", function(data) {
-    //     // See if loading was a success
-    //     if (data.result === "success") {
-    //         callback(data.paths);
-    //     }
-    //     else {
-    //         console.log("ERROR: failed to load scans");
-    //         callback();
-    //     }
-    // });
+    $.getJSON("scans", function(data) {
+        // See if loading was a success
+        if (data.result === "success") {
+            callback(data.paths);
+        }
+        else {
+            console.log("ERROR: failed to load scans");
+            callback();
+        }
+    });
 };
 
 
