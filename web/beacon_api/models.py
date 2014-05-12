@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib import auth
 from beacon_api.shared_functions import triangulate, rssi_to_feet
+import time
 
 # A single floorplan representing a store
 class Floorplan(models.Model):
@@ -90,6 +91,8 @@ class Log(models.Model):
 
             simplified_groups.append(simplified_group)
 
+        t_tracker = time.time()
+
         # Triangulate (estimate) the user's position given this information
         return_list = []
         for group in simplified_groups:
@@ -101,19 +104,19 @@ class Log(models.Model):
             try:
                 good_value, xpos, ypos = triangulate(52, 226, 20, 152, *beacon_args)
             except ValueError:
-                # print "Error triangulating with inputs \
-                # xMin=%d, xMax=%d, yMin=%d, yMax=%d, beacons=%s" \
-                # % (42, 250, 20, 180, str(beacon_args))
+                print "Error triangulating with inputs \
+                xMin=%d, xMax=%d, yMin=%d, yMax=%d, beacons=%s" \
+                % (42, 250, 20, 180, str(beacon_args))
                 continue
             if good_value:
-                time = group[0][2]
-                return_list.append((xpos, ypos, time))
-            # else:
-            #     print "Error triangulating with inputs \
-            #     xMin=%d, xMax=%d, yMin=%d, yMax=%d, beacons=%s" \
-            #     % (42, 250, 20, 180, str(beacon_args))
+                t = group[0][2]
+                return_list.append((xpos, ypos, t))
+            else:
+                print "Error triangulating with inputs \
+                xMin=%d, xMax=%d, yMin=%d, yMax=%d, beacons=%s" \
+                % (42, 250, 20, 180, str(beacon_args))
 
-
+        print "Time elapsed: %s" % str(time.time() - t_tracker)
         return return_list
 
 # Represents a single scan instance on a single Beacon

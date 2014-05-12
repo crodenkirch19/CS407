@@ -87,10 +87,11 @@ Visualiser.prototype.draw_scans = function(scans, render_type) {
 
 Visualiser.prototype.load_scans = function(callback) {
     // Load beacons from json file on server
-
+    console.log("Loading scans...")
     $.getJSON("scans", function(data) {
         // See if loading was a success
         if (data.result === "success") {
+            console.log("Scans loaded!");
             callback(data.paths);
         }
         else {

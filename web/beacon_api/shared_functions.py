@@ -11,6 +11,8 @@ mapMaxX = x value defining top border of map
 mapMinY = y value defining bottom border of map
 mapMaxY = y value defining top border of map
 followed by any number of beacons which should be entered exactly the same as the first is defined below
+If less than two beacons are entered, or incorrect number of arguments are entered, the program will return arguments that are flagged as invalid
+
 RETURNS
 three values are returned (useableValue, xUser, yUser)
 useable value is 1 if the location was successfully calculated, it is 0 if there was an error and the function was unable to calculate the location
@@ -20,13 +22,14 @@ userX and userY correspond to the calculated location of the user
 import itertools
 import math
 
+
 def triangulate(mapMinX, mapMaxX, mapMinY, mapMaxY, firstBeaconLocationX, firstBeaconLocationY, firstbeaconDist, *otherBeacons):
 
     '''
     The following variables need to be set for each implementation
     resolution refers to the distance unit that this function is accurate too, a smaller value results in slower function
     '''
-    resolution = 0.1
+    resolution = 0.05
     useableValue = 1
     xUser = 0
     yUser = 0
@@ -36,7 +39,7 @@ def triangulate(mapMinX, mapMaxX, mapMinY, mapMaxY, firstBeaconLocationX, firstB
     checks to make sure you entered the correct number of argument
     '''
     if (len(otherBeacons)%3) > 0:
-        print("Incorrect number of arguments, for each beacon you must endter its x location, y location, and strength, so number of arguments should always be a multiple of three")
+        print("Incorrect number of arguments, for each beacon you must enter its x location, y location, and strength, so number of arguments should always be a multiple of three")
         print("funciton will exit now")
         useableValue = 0
         return (useableValue, xUser, yUser)
@@ -82,30 +85,51 @@ def triangulate(mapMinX, mapMaxX, mapMinY, mapMaxY, firstBeaconLocationX, firstB
         if (count == 3):
             count = 0
 
-    '''
-    if you are triangulating using only two beacons, they must both be located along the same edge of the map
-    this checks to see if that is true and returns an error if now
-    '''
-    onEdge = 0
-    if (numBeacons == 2):
-        if(beaconXPoints[0] == mapMinX):
-            if(beaconXPoints[1]== mapMinX):
-                onEdge = 1
-        if(beaconXPoints[0] == mapMaxX):
-            if(beaconXPoints[1]== mapMaxX):
-                onEdge = 1
-        if(beaconXPoints[0] == mapMinY):
-            if(beaconXPoints[1]== mapMinY):
-                onEdge = 1
-        if(beaconXPoints[0] == mapMaxY):
-            if(beaconXPoints[1]== mapMaxY):
-                onEdge = 1
-        if(onEdge == 0):
-            print('You are only using two beacons for triangulation, this is only possible if these beacons are both located on the same edge of the map')
-            print('the beacons you entered do not satisfy this condition')
+    for item in beaconDists:
+        if (item <= 0):
+            print("Error: negative distances entered into arguments")
             useableValue = 0
             return (useableValue, xUser, yUser)
 
+    '''
+    If we are only using two beacons, we will use WeightAverageTri to triangulate their position
+    '''
+    if (numBeacons == 2):
+        (useableValue, xUser, yUser) = weightedAverageTri(mapMinX, mapMaxX, mapMinY, mapMaxY, beaconXPoints, beaconYPoints, beaconDists)
+        return (useableValue, xUser, yUser)
+
+    '''
+    If we are only using more than three beacons, I think we will have more accurate results
+    if we create every combination of three beacons available from the multiple of beacons used
+    and than average the triangulation result of each combination of three beacons
+    This could be commented out and to test if that is true or not
+    '''
+    '''
+    if (numBeacons > 3):
+        xPointsCombo = list(map(list, itertools.combinations(beaconXPoints, 3)))
+        yPointsCombo = list(map(list,itertools.combinations(beaconYPoints, 3)))
+        distCombo = list(map(list,itertools.combinations(beaconDists, 3)))
+        numCombos = len(distCombo)
+        numAveraged = 0
+        sumX = 0
+        sumY = 0
+        for g in range(0, numCombos):
+            (goodValue, xpos, ypos) = triangulate(mapMinX, mapMaxX, mapMinY, mapMaxY, xPointsCombo[g][0], yPointsCombo[g][0], distCombo[g][0], xPointsCombo[g][1], yPointsCombo[g][1], distCombo[g][1], xPointsCombo[g][2], yPointsCombo[g][2], distCombo[g][2])
+            if(goodValue == 1):
+                sumX = sumX + xpos
+                sumY = sumY + ypos
+                numAveraged = numAveraged + 1
+
+        if (numAveraged == 0):
+                print("multiple combinations tried, none returned valid results")
+                useableValue = 0
+                return (useableValue, xUser, yUser)
+
+        useableValue = 1
+        xUser = sumX/numAveraged
+        yUser = sumY/numAveraged
+        return (useableValue, xUser, yUser)
+    '''
     '''
     so at this point in time we can determine a range of x and y values that our individual must be located within
     each beacon gives a circle path where the user might be relative to that beacon, with the center of the circle at the x,y of the beacon and that circles radius equal to the beaconDist
@@ -120,15 +144,17 @@ def triangulate(mapMinX, mapMaxX, mapMinY, mapMaxY, firstBeaconLocationX, firstB
 
     for m in range(0, numBeacons):
 
-        maxPossibleX = beaconXPoints[m] + (beaconDists[m])
-        minPossibleX = beaconXPoints[m] - (beaconDists[m])
+        maxPossibleX = beaconXPoints[m] + ((beaconDists[m])-0.00001)
+        minPossibleX = beaconXPoints[m] - ((beaconDists[m])-0.00001)
+
         if (xUserMin < minPossibleX):
             xUserMin = minPossibleX
         if (xUserMax > maxPossibleX):
             xUserMax = maxPossibleX
 
-        maxPossibleY = beaconYPoints[m] + (beaconDists[m])
-        minPossibleY = beaconYPoints[m] - (beaconDists[m])
+        maxPossibleY = beaconYPoints[m] + ((beaconDists[m])-0.00001)
+        minPossibleY = beaconYPoints[m] - ((beaconDists[m])-0.00001)
+
         if (yUserMin < minPossibleY):
             yUserMin = minPossibleY
         if (yUserMax > maxPossibleY):
@@ -144,13 +170,15 @@ def triangulate(mapMinX, mapMaxX, mapMinY, mapMaxY, firstBeaconLocationX, firstB
         performYCalc = 0
     if(xUserMax < xUserMin):
         performXCalc = 0
+
+    '''
+    if there is no overlap between all of the cirlces at any x or y value then we will use weighted average to triangulate.
+    This is used when error in the beacons creates a situation which cannot be triangulated with the other method
+    '''
     if(performXCalc == 0):
         if(performYCalc == 0):
-            print('error: either your map boundaries or beacon values have been entered incorrectly or')
-            print('please retry entering your values or increase the maxError value in this function')
-            useableValue = 0
+            (useableValue, xUser, yUser) = weightedAverageTri(mapMinX, mapMaxX, mapMinY, mapMaxY, beaconXPoints, beaconYPoints, beaconDists)
             return (useableValue, xUser, yUser)
-
 
     '''
     now things get a little more complex, we have a quadrant defined by max/min x/y values which we know the user must be inside
@@ -257,8 +285,50 @@ def triangulate(mapMinX, mapMaxX, mapMinY, mapMaxY, firstBeaconLocationX, firstB
     '''
     return (useableValue, xUser, yUser)
 
+'''
+Called if the original triangulation method cannot get a data point
+'''
+def weightedAverageTri(mapMinX, mapMaxX, mapMinY, mapMaxY, xPoints, yPoints, weights):
+    '''
+    So a lower weight value corresponds to an actual higher likelihood of being closer to that beacon
+    We will find the weighted average x point first then the y point
+    to find the weighted average we will multiply each point in a list by the inverse of its weight
+    then sum these values, then divide that sum by the sums of the inverses of weights
+    '''
+    xTotal = 0
+    xWeightTotal = 0
+    for m in range(0,len(xPoints)):
+        xTotal = xTotal + xPoints[m]*(1/weights[m])
+        xWeightTotal = xWeightTotal + (1/weights[m])
+
+    yTotal = 0
+    yWeightTotal = 0
+    for m in range(0,len(yPoints)):
+        yTotal = yTotal + yPoints[m]*(1/weights[m])
+        yWeightTotal = yWeightTotal + (1/weights[m])
+
+    xValReturn = xTotal/xWeightTotal
+    yValReturn = yTotal/yWeightTotal
+
+
+    '''
+    ensure position returned is within map
+    '''
+    if(xValReturn > mapMaxX):
+        xValReturn = mapMaxX
+    if(xValReturn < mapMinX):
+        xValReturn = mapMinX
+    if(yValReturn > mapMaxY):
+        yValReturn = mapMaxY
+    if(yValReturn < mapMinY):
+        yValReturn = mapMinY
+    okayValue = 1
+    return(okayValue, xValReturn, yValReturn)
+
+
 def flatten(l):
-    '''Flatten a arbitrarily nested lists and return the result as a single list.
+    '''
+    Flatten a arbitrarily nested lists and return the result as a single list.
     '''
     ret = []
     for i in l:
@@ -278,6 +348,8 @@ def standardDev(inputList):
     stdDev = (avgVar)**(0.5)
 
     return stdDev
+
+
 
 
 # ===== RSSI UTILITIES =====
