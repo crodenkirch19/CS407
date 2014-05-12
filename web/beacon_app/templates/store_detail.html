@@ -7,17 +7,12 @@
 {% block content %}
   <div class="container">
     <h1 class="page-header"> Overview of {{ store.name }} </h1>
-
-    <div class="btn-group" data-toggle="buttons">
-      <label class="btn btn-primary">
-        <input type="radio" name="options" id="btn_heatmap" checked> Heatmap
-      </label>
-      <label class="btn btn-primary">
-        <input type="radio" name="options" id="btn_polyline"> Polyline
-      </label>
+    <div class="btn-group">
+      <button type="button" class="btn btn-default" id="btn_heatmap">Heatmap</button>
+      <button type="button" class="btn btn-default" id="btn_polyline">Polyline</button>
     </div>
     <hr>
-    <div id="app_container"></div>
+    <div id="app_container" class="well" style="width:960px;height:500px;position:relative;"><h2>Loading scans from server...</h1></div>
   </div>
 {% endblock %}
 
@@ -30,5 +25,15 @@
     { "address":"{{ beacon.mac_address }}", "x":{{ beacon.location_x }}, "y":{{ beacon.location_y }} } , {% endfor %}];
     var store = { "scale":{{ store.scale }}, "image_url":"{{ store.blueprint_url }}" };
     var visualiser = new Visualiser("app_container", beacons, store);
+    visualiser.visualize('heatmap');
+
+    $('#btn_heatmap').click(function(){
+      console.log("Clicked heatmap");
+      visualiser.visualize('heatmap');
+    });
+    $('#btn_polyline').click(function(){
+      console.log("Clicked polyline");
+      visualiser.visualize('polyline');
+    });
 </script>
 {% endblock %}
